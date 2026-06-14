@@ -26,9 +26,21 @@
     --job-bg: #E8EDF3;
     --job-text: #45607E;
 
-    --house: #CFA15F;
-    --house-bg: #F7EFDE;
-    --house-text: #A8793C;
+    --other: #CFA15F;
+    --other-bg: #F7EFDE;
+    --other-text: #A8793C;
+
+    --move: #9B82C2;
+    --move-bg: #F0EBF8;
+    --move-text: #7257A0;
+
+    --bills: #7FAE8C;
+    --bills-bg: #E9F4EC;
+    --bills-text: #4D7C5A;
+
+    --travel: #6FB0C4;
+    --travel-bg: #E7F4F7;
+    --travel-text: #3F7C8E;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -88,7 +100,7 @@
 
   .tab[data-cat="health"] { background: var(--health-bg); color: var(--health-text); }
   .tab[data-cat="job"]    { background: var(--job-bg);    color: var(--job-text); }
-  .tab[data-cat="house"]  { background: var(--house-bg);  color: var(--house-text); }
+  .tab[data-cat="other"]  { background: var(--other-bg);  color: var(--other-text); }
 
   .tab.active {
     background: #fff;
@@ -119,7 +131,54 @@
   .panel.active { display: flex; }
   .panel[data-cat="health"] { border-top-color: var(--health); }
   .panel[data-cat="job"]    { border-top-color: var(--job); }
-  .panel[data-cat="house"]  { border-top-color: var(--house); }
+  .panel[data-cat="other"]  { border-top-color: var(--other); }
+
+  /* Subtabs inside "Other" */
+  nav.subtabs {
+    display: flex;
+    gap: 8px;
+    padding: 14px 16px 4px;
+    flex-wrap: wrap;
+  }
+  .subtab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 999px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    background: var(--paper);
+    color: var(--ink-soft);
+    transition: background .15s ease, color .15s ease;
+  }
+  .subtab .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .subtab[data-cat="move"]   .dot { background: var(--move); }
+  .subtab[data-cat="bills"]  .dot { background: var(--bills); }
+  .subtab[data-cat="travel"] .dot { background: var(--travel); }
+
+  .subtab[data-cat="move"].active   { background: var(--move-bg);   color: var(--move-text); }
+  .subtab[data-cat="bills"].active  { background: var(--bills-bg);  color: var(--bills-text); }
+  .subtab[data-cat="travel"].active { background: var(--travel-bg); color: var(--travel-text); }
+
+  .subpanel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    border-top: 3px solid transparent;
+  }
+  .subpanel.active { display: flex; }
+  .subpanel[data-cat="move"]   { border-top-color: var(--move); }
+  .subpanel[data-cat="bills"]  { border-top-color: var(--bills); }
+  .subpanel[data-cat="travel"] { border-top-color: var(--travel); }
 
   .panel-head {
     display: flex;
@@ -195,7 +254,9 @@
 
   .panel[data-cat="health"] .check { --accent: var(--health); }
   .panel[data-cat="job"]    .check { --accent: var(--job); }
-  .panel[data-cat="house"]  .check { --accent: var(--house); }
+  .subpanel[data-cat="move"]   .check { --accent: var(--move); }
+  .subpanel[data-cat="bills"]  .check { --accent: var(--bills); }
+  .subpanel[data-cat="travel"] .check { --accent: var(--travel); }
 
   .task-text {
     flex: 1;
@@ -247,7 +308,9 @@
   }
   .panel[data-cat="health"] form.add-task input:focus { border-color: var(--health); }
   .panel[data-cat="job"]    form.add-task input:focus { border-color: var(--job); }
-  .panel[data-cat="house"]  form.add-task input:focus { border-color: var(--house); }
+  .subpanel[data-cat="move"]   form.add-task input:focus { border-color: var(--move); }
+  .subpanel[data-cat="bills"]  form.add-task input:focus { border-color: var(--bills); }
+  .subpanel[data-cat="travel"] form.add-task input:focus { border-color: var(--travel); }
 
   form.add-task button {
     border: none;
@@ -261,7 +324,9 @@
   }
   .panel[data-cat="health"] form.add-task button { background: var(--health); }
   .panel[data-cat="job"]    form.add-task button { background: var(--job); }
-  .panel[data-cat="house"]  form.add-task button { background: var(--house); }
+  .subpanel[data-cat="move"]   form.add-task button { background: var(--move); }
+  .subpanel[data-cat="bills"]  form.add-task button { background: var(--bills); }
+  .subpanel[data-cat="travel"] form.add-task button { background: var(--travel); }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -284,15 +349,15 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
       Job
     </button>
-    <button class="tab" data-cat="house">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5"/></svg>
-      House
+    <button class="tab" data-cat="other">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 9.93 4Z"/></svg>
+      Other
     </button>
   </nav>
 
   <main class="panels">
 
-    <section class="panel active" data-cat="health">
+    <section class="panel active task-group" data-cat="health">
       <div class="panel-head">
         <h2>Anju's Health</h2>
         <div class="meta">
@@ -307,7 +372,7 @@
       </form>
     </section>
 
-    <section class="panel" data-cat="job">
+    <section class="panel task-group" data-cat="job">
       <div class="panel-head">
         <h2>Job Related</h2>
         <div class="meta">
@@ -322,19 +387,57 @@
       </form>
     </section>
 
-    <section class="panel" data-cat="house">
-      <div class="panel-head">
-        <h2>House</h2>
-        <div class="meta">
-          <span class="count"></span>
-          <button class="clear-done">Clear done</button>
+    <section class="panel" data-cat="other">
+      <nav class="subtabs">
+        <button class="subtab active" data-cat="move"><span class="dot"></span>Mallika's Move</button>
+        <button class="subtab" data-cat="bills"><span class="dot"></span>Bills</button>
+        <button class="subtab" data-cat="travel"><span class="dot"></span>Travel</button>
+      </nav>
+
+      <div class="subpanel active task-group" data-cat="move">
+        <div class="panel-head">
+          <h2>Mallika's Move</h2>
+          <div class="meta">
+            <span class="count"></span>
+            <button class="clear-done">Clear done</button>
+          </div>
         </div>
+        <ul class="tasks"></ul>
+        <form class="add-task">
+          <input type="text" placeholder="Add a task..." aria-label="New task for Mallika's Move" />
+          <button type="submit" aria-label="Add task">+</button>
+        </form>
       </div>
-      <ul class="tasks"></ul>
-      <form class="add-task">
-        <input type="text" placeholder="Add a task..." aria-label="New house task" />
-        <button type="submit" aria-label="Add task">+</button>
-      </form>
+
+      <div class="subpanel task-group" data-cat="bills">
+        <div class="panel-head">
+          <h2>Bills</h2>
+          <div class="meta">
+            <span class="count"></span>
+            <button class="clear-done">Clear done</button>
+          </div>
+        </div>
+        <ul class="tasks"></ul>
+        <form class="add-task">
+          <input type="text" placeholder="Add a task..." aria-label="New bill task" />
+          <button type="submit" aria-label="Add task">+</button>
+        </form>
+      </div>
+
+      <div class="subpanel task-group" data-cat="travel">
+        <div class="panel-head">
+          <h2>Travel</h2>
+          <div class="meta">
+            <span class="count"></span>
+            <button class="clear-done">Clear done</button>
+          </div>
+        </div>
+        <ul class="tasks"></ul>
+        <form class="add-task">
+          <input type="text" placeholder="Add a task..." aria-label="New travel task" />
+          <button type="submit" aria-label="Add task">+</button>
+        </form>
+      </div>
     </section>
 
   </main>
@@ -346,11 +449,26 @@
   let uidCounter = Date.now();
 
   function load() {
+    const empty = { health: [], job: [], move: [], bills: [], travel: [] };
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const result = {
+          health: parsed.health || [],
+          job: parsed.job || [],
+          move: parsed.move || [],
+          bills: parsed.bills || [],
+          travel: parsed.travel || []
+        };
+        // one-time migration: old "house" list becomes Mallika's Move if it had items
+        if (parsed.house && parsed.house.length && !parsed.move) {
+          result.move = parsed.house;
+        }
+        return result;
+      }
     } catch (e) {}
-    return { health: [], job: [], house: [] };
+    return empty;
   }
 
   function save() {
@@ -366,8 +484,8 @@
   }
 
   function render(cat) {
-    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
-    const ul = panel.querySelector('ul.tasks');
+    const group = document.querySelector('.task-group[data-cat="' + cat + '"]');
+    const ul = group.querySelector('ul.tasks');
     const items = data[cat] || [];
     ul.innerHTML = '';
 
@@ -397,18 +515,18 @@
   }
 
   function updateMeta(cat) {
-    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
+    const group = document.querySelector('.task-group[data-cat="' + cat + '"]');
     const items = data[cat] || [];
     const doneCount = items.filter(i => i.done).length;
-    const countEl = panel.querySelector('.count');
+    const countEl = group.querySelector('.count');
     countEl.textContent = items.length ? (doneCount + ' of ' + items.length + ' done') : '';
-    const clearBtn = panel.querySelector('.clear-done');
+    const clearBtn = group.querySelector('.clear-done');
     clearBtn.style.visibility = doneCount ? 'visible' : 'hidden';
   }
 
-  document.querySelectorAll('.panel').forEach(panel => {
-    const cat = panel.dataset.cat;
-    const ul = panel.querySelector('ul.tasks');
+  document.querySelectorAll('.task-group').forEach(group => {
+    const cat = group.dataset.cat;
+    const ul = group.querySelector('ul.tasks');
 
     ul.addEventListener('click', e => {
       const li = e.target.closest('li');
@@ -452,15 +570,15 @@
       }
     });
 
-    panel.querySelector('.clear-done').addEventListener('click', () => {
+    group.querySelector('.clear-done').addEventListener('click', () => {
       data[cat] = data[cat].filter(i => !i.done);
       save();
       render(cat);
     });
 
-    panel.querySelector('.add-task').addEventListener('submit', e => {
+    group.querySelector('.add-task').addEventListener('submit', e => {
       e.preventDefault();
-      const input = panel.querySelector('.add-task input');
+      const input = group.querySelector('.add-task input');
       const text = input.value.trim();
       if (!text) return;
       data[cat].push({ id: uid(), text: text, done: false });
@@ -477,6 +595,14 @@
       const cat = tab.dataset.cat;
       document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
       document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+    });
+  });
+
+  document.querySelectorAll('.subtab').forEach(subtab => {
+    subtab.addEventListener('click', () => {
+      const cat = subtab.dataset.cat;
+      document.querySelectorAll('.subtab').forEach(t => t.classList.toggle('active', t === subtab));
+      document.querySelectorAll('.subpanel').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
     });
   });
 </script>
