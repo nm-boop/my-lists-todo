@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Lists" />
+<meta name="theme-color" content="#FAF8F4" />
+<title>Lists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF8F4;
+    --ink: #2D2A26;
+    --ink-soft: #9A9388;
+    --line: #E8E2D8;
+
+    --health: #C9818B;
+    --health-bg: #F7E9EB;
+    --health-text: #A14F5C;
+
+    --job: #6C87A5;
+    --job-bg: #E8EDF3;
+    --job-text: #45607E;
+
+    --house: #CFA15F;
+    --house-bg: #F7EFDE;
+    --house-text: #A8793C;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header.top { padding: 28px 20px 12px; }
+  header.top h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  header.top p {
+    margin: 4px 0 0;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  nav.tabs {
+    display: flex;
+    gap: 6px;
+    padding: 8px 16px 0;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 6px;
+    border: none;
+    border-radius: 12px 12px 0 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease, color .15s ease;
+    transform: translateY(4px);
+  }
+  .tab svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .tab[data-cat="health"] { background: var(--health-bg); color: var(--health-text); }
+  .tab[data-cat="job"]    { background: var(--job-bg);    color: var(--job-text); }
+  .tab[data-cat="house"]  { background: var(--house-bg);  color: var(--house-text); }
+
+  .tab.active {
+    background: #fff;
+    transform: translateY(0);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+    position: relative;
+    z-index: 2;
+  }
+
+  main.panels {
+    flex: 1;
+    background: #fff;
+    border-radius: 0 0 16px 16px;
+    margin: 0 16px 24px;
+    box-shadow: 0 4px 24px rgba(45, 42, 38, 0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    border-top: 4px solid transparent;
+    min-height: 60vh;
+  }
+  .panel.active { display: flex; }
+  .panel[data-cat="health"] { border-top-color: var(--health); }
+  .panel[data-cat="job"]    { border-top-color: var(--job); }
+  .panel[data-cat="house"]  { border-top-color: var(--house); }
+
+  .panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px 8px;
+  }
+  .panel-head h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 19px;
+    margin: 0;
+    font-weight: 700;
+  }
+  .panel-head .meta {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .panel-head .count {
+    display: block;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 2px;
+  }
+  .clear-done {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: var(--ink-soft);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+  }
+  .clear-done:hover { color: var(--ink); }
+
+  ul.tasks {
+    list-style: none;
+    margin: 0;
+    padding: 4px 8px;
+    flex: 1;
+    overflow-y: auto;
+  }
+  ul.tasks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  ul.tasks li:last-child { border-bottom: none; }
+
+  .check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: none;
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: transform .12s ease, background .12s ease;
+  }
+  .check svg { width: 12px; height: 12px; opacity: 0; transition: opacity .12s ease; }
+
+  li.done .check { background: var(--accent); }
+  li.done .check svg { opacity: 1; }
+  .check:active { transform: scale(0.88); }
+
+  .panel[data-cat="health"] .check { --accent: var(--health); }
+  .panel[data-cat="job"]    .check { --accent: var(--job); }
+  .panel[data-cat="house"]  .check { --accent: var(--house); }
+
+  .task-text {
+    flex: 1;
+    font-size: 15px;
+    line-height: 1.4;
+    outline: none;
+    word-break: break-word;
+    padding-top: 1px;
+  }
+  li.done .task-text {
+    color: var(--ink-soft);
+    text-decoration: line-through;
+  }
+
+  .delete {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+  }
+  .delete:hover { color: #C0584F; }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 40px 24px;
+  }
+
+  form.add-task {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid var(--line);
+  }
+  form.add-task input {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    background: var(--paper);
+  }
+  .panel[data-cat="health"] form.add-task input:focus { border-color: var(--health); }
+  .panel[data-cat="job"]    form.add-task input:focus { border-color: var(--job); }
+  .panel[data-cat="house"]  form.add-task input:focus { border-color: var(--house); }
+
+  form.add-task button {
+    border: none;
+    border-radius: 10px;
+    width: 44px;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .panel[data-cat="health"] form.add-task button { background: var(--health); }
+  .panel[data-cat="job"]    form.add-task button { background: var(--job); }
+  .panel[data-cat="house"]  form.add-task button { background: var(--house); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>Lists</h1>
+    <p>Tap a tab to switch lists. Tap text to edit, tap the circle to check off.</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-cat="health">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.5-1.5 3-3.2 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.8 0-3 .5-4.5 2-1.5-1.5-2.7-2-4.5-2A5.5 5.5 0 0 0 2 8.5C2 10.8 3.5 12.5 5 14l7 7Z"/></svg>
+      Anju
+    </button>
+    <button class="tab" data-cat="job">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Job
+    </button>
+    <button class="tab" data-cat="house">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/><path d="M9.5 20v-5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v5"/></svg>
+      House
+    </button>
+  </nav>
+
+  <main class="panels">
+
+    <section class="panel active" data-cat="health">
+      <div class="panel-head">
+        <h2>Anju's Health</h2>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-done">Clear done</button>
+        </div>
+      </div>
+      <ul class="tasks"></ul>
+      <form class="add-task">
+        <input type="text" placeholder="Add a task..." aria-label="New task for Anju's Health" />
+        <button type="submit" aria-label="Add task">+</button>
+      </form>
+    </section>
+
+    <section class="panel" data-cat="job">
+      <div class="panel-head">
+        <h2>Job Related</h2>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-done">Clear done</button>
+        </div>
+      </div>
+      <ul class="tasks"></ul>
+      <form class="add-task">
+        <input type="text" placeholder="Add a task..." aria-label="New job related task" />
+        <button type="submit" aria-label="Add task">+</button>
+      </form>
+    </section>
+
+    <section class="panel" data-cat="house">
+      <div class="panel-head">
+        <h2>House</h2>
+        <div class="meta">
+          <span class="count"></span>
+          <button class="clear-done">Clear done</button>
+        </div>
+      </div>
+      <ul class="tasks"></ul>
+      <form class="add-task">
+        <input type="text" placeholder="Add a task..." aria-label="New house task" />
+        <button type="submit" aria-label="Add task">+</button>
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const STORAGE_KEY = 'colorTodoData_v1';
+  let data = load();
+  let uidCounter = Date.now();
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { health: [], job: [], house: [] };
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
+  function uid() { return 'id' + (uidCounter++); }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function render(cat) {
+    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
+    const ul = panel.querySelector('ul.tasks');
+    const items = data[cat] || [];
+    ul.innerHTML = '';
+
+    if (!items.length) {
+      const li = document.createElement('li');
+      li.className = 'empty-state';
+      li.style.border = 'none';
+      li.style.display = 'block';
+      li.style.width = '100%';
+      li.textContent = 'Nothing here yet. Add your first task below.';
+      ul.appendChild(li);
+    } else {
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.className = item.done ? 'done' : '';
+        li.dataset.id = item.id;
+        li.innerHTML =
+          '<button class="check" aria-label="Toggle complete">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+          '</button>' +
+          '<div class="task-text" contenteditable="true" spellcheck="false">' + escapeHtml(item.text) + '</div>' +
+          '<button class="delete" aria-label="Delete task">&times;</button>';
+        ul.appendChild(li);
+      });
+    }
+    updateMeta(cat);
+  }
+
+  function updateMeta(cat) {
+    const panel = document.querySelector('.panel[data-cat="' + cat + '"]');
+    const items = data[cat] || [];
+    const doneCount = items.filter(i => i.done).length;
+    const countEl = panel.querySelector('.count');
+    countEl.textContent = items.length ? (doneCount + ' of ' + items.length + ' done') : '';
+    const clearBtn = panel.querySelector('.clear-done');
+    clearBtn.style.visibility = doneCount ? 'visible' : 'hidden';
+  }
+
+  document.querySelectorAll('.panel').forEach(panel => {
+    const cat = panel.dataset.cat;
+    const ul = panel.querySelector('ul.tasks');
+
+    ul.addEventListener('click', e => {
+      const li = e.target.closest('li');
+      if (!li || !li.dataset.id) return;
+      const id = li.dataset.id;
+      if (e.target.closest('.check')) {
+        const item = data[cat].find(i => i.id === id);
+        item.done = !item.done;
+        save();
+        render(cat);
+      } else if (e.target.closest('.delete')) {
+        data[cat] = data[cat].filter(i => i.id !== id);
+        save();
+        render(cat);
+      }
+    });
+
+    // capture phase, since 'blur' does not bubble
+    ul.addEventListener('blur', e => {
+      if (!e.target.classList || !e.target.classList.contains('task-text')) return;
+      const li = e.target.closest('li');
+      const id = li.dataset.id;
+      const item = data[cat].find(i => i.id === id);
+      if (!item) return;
+      const text = e.target.textContent.replace(/\s+/g, ' ').trim();
+      if (!text) {
+        data[cat] = data[cat].filter(i => i.id !== id);
+        save();
+        render(cat);
+        return;
+      }
+      item.text = text;
+      save();
+      if (e.target.textContent !== text) render(cat);
+    }, true);
+
+    ul.addEventListener('keydown', e => {
+      if (e.target.classList && e.target.classList.contains('task-text') && e.key === 'Enter') {
+        e.preventDefault();
+        e.target.blur();
+      }
+    });
+
+    panel.querySelector('.clear-done').addEventListener('click', () => {
+      data[cat] = data[cat].filter(i => !i.done);
+      save();
+      render(cat);
+    });
+
+    panel.querySelector('.add-task').addEventListener('submit', e => {
+      e.preventDefault();
+      const input = panel.querySelector('.add-task input');
+      const text = input.value.trim();
+      if (!text) return;
+      data[cat].push({ id: uid(), text: text, done: false });
+      input.value = '';
+      save();
+      render(cat);
+    });
+
+    render(cat);
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const cat = tab.dataset.cat;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+    });
+  });
+</script>
+</body>
+</html>
